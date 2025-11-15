@@ -2,9 +2,17 @@
 # lets us handle specific linux/macos cases
 set -l OS (uname)
 
+if type -q devbox
+    devbox global shellenv --init-hook | source
+end
+
 # directory colors
 if test "$OS" = Darwin
-    eval (gdircolors -c $HOME/.dir_colors)
+    if type -q devbox
+        eval (dircolors -c $HOME/.dir_colors)
+    else
+        eval (gdircolors -c $HOME/.dir_colors)
+    end
 else
     eval (dircolors -c $HOME/.dir_colors)
 end
@@ -13,7 +21,6 @@ direnv hook fish | source
 
 # Path variables
 set PATH $HOME/.local/bin $PATH
-set PATH $HOME/.local/share/poetry/bin $PATH
 set PATH $HOME/.cargo/bin $PATH
 set PATH $HOME/.local/bin/ncbi $PATH
 
@@ -30,6 +37,7 @@ function fish_user_key_bindings
     bind -M insert \cf accept-autosuggestion
     bind -M default _ beginning-of-line
     bind -M visual _ beginning-of-line
+    bind -M visual y fish_clipboard_copy
 
     fish_vi_key_bindings
 end
@@ -42,6 +50,7 @@ fish_ssh_agent
 # aliases, these are os specific
 if test "$OS" = Darwin
     alias ls "gls --color=auto"
+    alias ls "ls --color=auto"
 else
     alias ls "ls --color=auto"
 end
@@ -72,4 +81,9 @@ set -gx fish_pager_color_progress 555555
 set -gx fish_pager_color_completion cccccc
 set -gx fish_pager_color_description 7a7a7a
 set -gx fish_pager_color_selected_background --background=555555
+
+
+# Added by OrbStack: command-line tools and integration
+# This won't be added again if you remove it.
+source ~/.orbstack/shell/init2.fish 2>/dev/null || :
 
